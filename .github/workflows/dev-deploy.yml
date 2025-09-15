@@ -1,0 +1,49 @@
+name: Dev Smoke Deploy (Render Free)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+concurrency:
+  group: dev-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-test-deploy-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps & run tests
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+          pytest -q
+
+      - name: Trigger Render deploy
+        run: |
+          curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+
+      - name: Wait for app to become healthy
+        run: |
+          URL="${{ secrets.RENDER_SERVICE_URL }}"
+          echo "Waiting for $URL/health ..."
+          for i in {1..40}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$URL/health" || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy."
+              exit 0
+            fi
+            echo "Attempt $i: code=$code (sleep 15s)"
+            sleep 15
+          done
+          echo "Timed out waiting for healthy service"
+          exit 1
