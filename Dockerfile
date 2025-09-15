@@ -8,5 +8,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 ENV PORT=8080 APP_VERSION=dev
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD curl -fsS http://localhost:8080/health || exit 1
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD curl -fsS http://localhost:${PORT}/health || exit 1
+CMD ["bash", "-lc", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
