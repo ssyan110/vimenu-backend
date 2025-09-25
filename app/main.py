@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import menus
+from app.routers.menus import router as menus_router
 
 app = FastAPI(title="vimenu-backend")
 
@@ -7,5 +7,5 @@ app = FastAPI(title="vimenu-backend")
 def health():
     return {"status": "ok"}
 
-# /menus -> list menus
-app.include_router(menus.router, prefix="/menus", tags=["menus"])
+# Mount /menus
+app.include_router(menus_router)
