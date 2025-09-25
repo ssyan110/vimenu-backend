@@ -34,4 +34,4 @@ jobs:
       - name: Wait for health to go green
         run: |
           chmod +x scripts/smoke_test.sh
-          ./scripts/smoke_test.sh "${{ secrets.BASE_URL }}"
+          ./scripts/smoke_test.sh "${{ secrets.RENDER_SERVICE_URL }}"
