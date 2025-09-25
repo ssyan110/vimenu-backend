@@ -1,17 +1,11 @@
 from fastapi import FastAPI
-import os, time
+from app.routers import menus
 
-app = FastAPI()
-
-@app.get("/")
-def root():
-    return {"message": "Hello from ViMenu (dev)!"}
+app = FastAPI(title="vimenu-backend")
 
 @app.get("/health")
 def health():
-    return {
-        "status": "ok",
-        "service": "vimenu-backend",
-        "version": os.getenv("APP_VERSION", "dev"),
-        "ts": int(time.time())
-    }
+    return {"status": "ok"}
+
+# /menus -> list menus
+app.include_router(menus.router, prefix="/menus", tags=["menus"])
